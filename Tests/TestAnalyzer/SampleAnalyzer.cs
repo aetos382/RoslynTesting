@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Immutable;
 
 using Microsoft.CodeAnalysis;
@@ -12,6 +13,8 @@ public sealed class SampleAnalyzer : DiagnosticAnalyzer
     public override void Initialize(
         AnalysisContext context)
     {
+        ArgumentNullException.ThrowIfNull(context);
+
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
     }
