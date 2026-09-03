@@ -170,7 +170,7 @@ public class RoslynDriver
                         loader: generatedTextLoader,
                         isGenerated: true);
 
-                    workspace.CurrentSolution.AddDocument(generatedDocumentInfo);
+                    var updatesSolution = workspace.CurrentSolution.AddDocument(generatedDocumentInfo);
                 }
             }
         }
