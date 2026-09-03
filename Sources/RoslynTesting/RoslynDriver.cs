@@ -23,7 +23,6 @@ public class RoslynDriver
 
     public void AddSource(
         string fileName,
-
         [StringSyntax("c#")] string source)
     {
         ArgumentNullException.ThrowIfNull(fileName);
@@ -32,7 +31,9 @@ public class RoslynDriver
         this.AddSource(fileName, SourceText.From(source));
     }
 
-    public void AddSource(string fileName, SourceText source)
+    public void AddSource(
+        string fileName,
+        SourceText source)
     {
         ArgumentNullException.ThrowIfNull(fileName);
         ArgumentNullException.ThrowIfNull(source);
@@ -53,6 +54,8 @@ public class RoslynDriver
 
     public GeneratorDriverOptions GeneratorDriverOptions { get; set; } =
         new(trackIncrementalGeneratorSteps: true);
+
+    public bool Emit { get; set; }
 
     public EmitOptions EmitOptions { get; set; } = new();
 

@@ -3,6 +3,7 @@
     <Project Path="Sources/RoslynTesting/RoslynTesting.csproj" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="Tests/AnalyzerShared/AnalyzerShared.csproj" Id="bd7ab03e-ff24-463d-9012-7fd9d842c8a2" />
     <Project Path="Tests/RoslynTesting.Tests/RoslynTesting.Tests.csproj" />
     <Project Path="Tests/TestAnalyzer/TestAnalyzer.csproj" Id="911a439c-9187-46c6-ad85-58f19be4105c" />
     <Project Path="Tests/TestCodeFix/TestCodeFix.csproj" Id="9f675031-896e-4ab2-9361-45d61e18623f" />
