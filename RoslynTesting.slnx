@@ -4,5 +4,9 @@
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/RoslynTesting.Tests/RoslynTesting.Tests.csproj" />
+    <Project Path="Tests/TestAnalyzer/TestAnalyzer.csproj" Id="911a439c-9187-46c6-ad85-58f19be4105c" />
+    <Project Path="Tests/TestCodeFix/TestCodeFix.csproj" Id="9f675031-896e-4ab2-9361-45d61e18623f" />
+    <Project Path="Tests/TestCodeRefactoring/TestCodeRefactoring.csproj" Id="fa0fe540-644a-44b5-94e7-31aabffd070f" />
+    <Project Path="Tests/TestSourceGenerator/TestSourceGenerator.csproj" Id="854bc0ca-35f0-4b8a-8fa2-66dbb534cd4f" />
   </Folder>
 </Solution>

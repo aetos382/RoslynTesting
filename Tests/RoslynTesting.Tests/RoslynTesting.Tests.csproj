@@ -8,6 +8,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Sources\RoslynTesting\RoslynTesting.csproj" />
+    <ProjectReference Include="..\TestAnalyzer\TestAnalyzer.csproj" />
+    <ProjectReference Include="..\TestCodeFix\TestCodeFix.csproj" />
+    <ProjectReference Include="..\TestCodeRefactoring\TestCodeRefactoring.csproj" />
+    <ProjectReference Include="..\TestSourceGenerator\TestSourceGenerator.csproj" />
   </ItemGroup>
 
 </Project>

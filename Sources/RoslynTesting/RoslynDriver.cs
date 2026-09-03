@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Testing;
 using Microsoft.CodeAnalysis.Text;
 
@@ -40,7 +42,7 @@ public class RoslynDriver
 
     public CSharpParseOptions ParseOptions { get; set; } = CSharpParseOptions.Default;
 
-    public CSharpCompilationOptions CompilationOptions { get; set; } = new CSharpCompilationOptions(
+    public CSharpCompilationOptions CompilationOptions { get; set; } = new(
         OutputKind.DynamicallyLinkedLibrary,
         allowUnsafe: true,
         nullableContextOptions: NullableContextOptions.Enable);
@@ -49,22 +51,37 @@ public class RoslynDriver
 
     public IList<MetadataReference> AdditionalReferences { get; } = new List<MetadataReference>();
 
+    public GeneratorDriverOptions GeneratorDriverOptions { get; set; } =
+        new(trackIncrementalGeneratorSteps: true);
+
+    public EmitOptions EmitOptions { get; set; } = new();
+
     public void AddAnalyzer(DiagnosticAnalyzer analyzer)
     {
         ArgumentNullException.ThrowIfNull(analyzer);
+
+        this._analyzers.Add(analyzer);
     }
 
     public void AddSourceGenerator(ISourceGenerator sourceGenerator)
     {
         ArgumentNullException.ThrowIfNull(sourceGenerator);
+
+        this._sourceGenerators.Add(sourceGenerator);
     }
 
     public void AddSourceGenerator(IIncrementalGenerator sourceGenerator)
     {
         ArgumentNullException.ThrowIfNull(sourceGenerator);
+
+        this.AddSourceGenerator(sourceGenerator.AsSourceGenerator());
     }
 
     public string AssemblyName { get; set; }
+
+    private readonly List<DiagnosticAnalyzer> _analyzers = new();
+
+    private readonly List<ISourceGenerator> _sourceGenerators = new();
 
     public virtual async Task<CSharpCompilation> CreateCompilationAsync(
         CancellationToken cancellationToken)
@@ -125,6 +142,38 @@ public class RoslynDriver
         var project = workspace.AddProject(mainProjectInfo);
 
         var compilation = await project.GetCompilationAsync(cancellationToken).ConfigureAwait(false);
+
+        if (this._sourceGenerators is { Count: > 0 } sourceGenerators)
+        {
+            var driver = (GeneratorDriver)CSharpGeneratorDriver.Create(
+                sourceGenerators,
+                parseOptions: this.ParseOptions,
+                driverOptions: this.GeneratorDriverOptions);
+
+            driver = driver.RunGenerators(compilation, cancellationToken);
+
+            var runResult = driver.GetRunResult();
+
+            foreach (var result in runResult.Results)
+            {
+                foreach (var source in result.GeneratedSources)
+                {
+                    var hintName = source.HintName;
+                    var path = Path.GetDirectoryName(hintName);
+                    var fileName = Path.GetFileName(hintName);
+
+                    var generatedTextLoader = TextLoader.From(TextAndVersion.Create(source.SourceText, VersionStamp.Default));
+
+                    var generatedDocumentInfo = DocumentInfo.Create(
+                        DocumentId.CreateNewId(mainProjectInfo.Id),
+                        fileName,
+                        loader: generatedTextLoader,
+                        isGenerated: true);
+
+                    workspace.CurrentSolution.AddDocument(generatedDocumentInfo);
+                }
+            }
+        }
     }
 
     private readonly List<SourceFile> _sources = new();
