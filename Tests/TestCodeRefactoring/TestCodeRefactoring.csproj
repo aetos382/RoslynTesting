@@ -5,6 +5,7 @@
     <IsRoslynComponent>true</IsRoslynComponent>
     <AssemblyName>Aetos.RoslynTesting.Tests.TestCodeRefactoring</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
