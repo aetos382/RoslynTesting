@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,22 +24,13 @@ public class RoslynDriver
 
     public void AddSource(
         string fileName,
-        [StringSyntax("c#")] string source)
+        [StringSyntax("c#-test")] string source,
+        bool useMarkup = false)
     {
         ArgumentNullException.ThrowIfNull(fileName);
         ArgumentNullException.ThrowIfNull(source);
 
-        this.AddSource(fileName, SourceText.From(source));
-    }
-
-    public void AddSource(
-        string fileName,
-        SourceText source)
-    {
-        ArgumentNullException.ThrowIfNull(fileName);
-        ArgumentNullException.ThrowIfNull(source);
-
-        this._sources.Add(new(fileName, source));
+        this._sources.Add(new(fileName, source, useMarkup));
     }
 
     public CSharpParseOptions ParseOptions { get; set; } = CSharpParseOptions.Default;
@@ -86,34 +78,6 @@ public class RoslynDriver
 
     private readonly List<ISourceGenerator> _sourceGenerators = new();
 
-    public virtual async Task<CSharpCompilation> CreateCompilationAsync(
-        CancellationToken cancellationToken)
-    {
-        var sources = this._sources;
-        var parseOptions = this.ParseOptions;
-        var syntaxTrees = new List<SyntaxTree>(sources.Count);
-
-        foreach (var (fileName, source) in sources)
-        {
-            var syntaxTree = CSharpSyntaxTree.ParseText(source, parseOptions, fileName, cancellationToken);
-            syntaxTrees.Add(syntaxTree);
-        }
-
-        var metadataReferences = await this.ReferenceAssemblies
-            .ResolveAsync(LanguageNames.CSharp, cancellationToken)
-            .ConfigureAwait(false);
-
-        metadataReferences = metadataReferences.AddRange(this.AdditionalReferences);
-
-        var compilation = CSharpCompilation.Create(
-            this.AssemblyName,
-            syntaxTrees,
-            metadataReferences,
-            this.CompilationOptions);
-
-        return compilation;
-    }
-
     public async Task RunAsync(CancellationToken cancellationToken)
     {
         using var workspace = new AdhocWorkspace();
@@ -128,9 +92,23 @@ public class RoslynDriver
 
         var documentInfos = new List<DocumentInfo>();
 
-        foreach (var (fileName, source) in this._sources)
+        foreach (var (fileName, source, useMarkup) in this._sources)
         {
-            var textLoader = TextLoader.From(TextAndVersion.Create(source, VersionStamp.Default));
+            var inputSource = source;
+
+            if (useMarkup)
+            {
+                TestFileMarkupParser.GetPositionsAndSpans(
+                    inputSource,
+                    out var outputSource,
+                    out var positions,
+                    out var spans);
+
+                inputSource = outputSource;
+            }
+
+            var sourceText = SourceText.From(inputSource, Encoding.UTF8, SourceHashAlgorithm.Sha256);
+            var textLoader = TextLoader.From(TextAndVersion.Create(sourceText, VersionStamp.Default));
 
             var documentInfo = DocumentInfo.Create(
                 DocumentId.CreateNewId(mainProjectInfo.Id),
