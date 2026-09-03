@@ -34,6 +34,8 @@ public class RoslynDriver
         this._sources.Add(new(fileName, source, useMarkup));
     }
 
+    private readonly List<SourceFile> _sources = new();
+
     public CSharpParseOptions ParseOptions { get; set; } = CSharpParseOptions.Default;
 
     public CSharpCompilationOptions CompilationOptions { get; set; } = new(
@@ -73,15 +75,13 @@ public class RoslynDriver
         this.AddSourceGenerator(sourceGenerator.AsSourceGenerator());
     }
 
-    public ICollection<DiagnosticResult> ExpectedDiagnostics { get; } = new List<DiagnosticResult>();
-
     public string AssemblyName { get; set; }
 
     private readonly List<DiagnosticAnalyzer> _analyzers = new();
 
     private readonly List<ISourceGenerator> _sourceGenerators = new();
 
-    public async Task RunAsync(CancellationToken cancellationToken)
+    public async Task<RunResult> RunAsync(CancellationToken cancellationToken)
     {
         using var workspace = new AdhocWorkspace();
 
@@ -94,7 +94,6 @@ public class RoslynDriver
             compilationOptions: this.CompilationOptions);
 
         var documentInfos = new List<DocumentInfo>();
-        var expectedDiagnostics = this.ExpectedDiagnostics.ToList();
 
         foreach (var (fileName, source, useMarkup) in this._sources)
         {
@@ -159,7 +158,7 @@ public class RoslynDriver
                 }
             }
         }
-    }
 
-    private readonly List<SourceFile> _sources = new();
+        return new([]);
+    }
 }
