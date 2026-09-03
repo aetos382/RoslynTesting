@@ -20,5 +20,11 @@ public sealed class SampleCodeFixProvider :
     }
 
     /// <inheritdoc />
+    public override FixAllProvider? GetFixAllProvider()
+    {
+        return null;
+    }
+
+    /// <inheritdoc />
     public override ImmutableArray<string> FixableDiagnosticIds { get; }
 }

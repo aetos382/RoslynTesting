@@ -8,6 +8,7 @@
     <GlobalPackageReference Include="Microsoft.CodeAnalysis.ResxSourceGenerator" Version="5.0.0-1.25277.114" />
   </ItemGroup>
   <ItemGroup>
+    <PackageVersion Include="Aetos.CSharpPolyfills" Version="0.2.1" />
     <PackageVersion Include="JetBrains.Annotations" Version="2026.2.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzer.Testing" Version="1.1.4" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />

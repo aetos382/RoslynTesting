@@ -13,6 +13,13 @@
     <RestoreLockedMode>true</RestoreLockedMode>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(IsRoslynComponent)' == 'true'">
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(IsPackable)' == 'true'">
     <Copyright>Copyright (c) 2026 aetos</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
