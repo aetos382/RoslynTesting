@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,6 +73,8 @@ public class RoslynDriver
         this.AddSourceGenerator(sourceGenerator.AsSourceGenerator());
     }
 
+    public ICollection<DiagnosticResult> ExpectedDiagnostics { get; } = new List<DiagnosticResult>();
+
     public string AssemblyName { get; set; }
 
     private readonly List<DiagnosticAnalyzer> _analyzers = new();
@@ -91,6 +94,7 @@ public class RoslynDriver
             compilationOptions: this.CompilationOptions);
 
         var documentInfos = new List<DocumentInfo>();
+        var expectedDiagnostics = this.ExpectedDiagnostics.ToList();
 
         foreach (var (fileName, source, useMarkup) in this._sources)
         {
